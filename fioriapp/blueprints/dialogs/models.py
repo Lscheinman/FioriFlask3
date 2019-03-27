@@ -107,15 +107,21 @@ class OrientModel():
 
     def fill_index(self, **kwargs):
         click.echo('%s Preparing index...' % get_datetime())
-        if 'limit' in kwargs.keys():
-            q = self.client.command('select cont_id from Monologue LIMIT %d' % kwargs['limit'])
-        else:
-            q = self.client.command('select cont_id from Monologue')
-        click.echo('%s ...of %d vertices...' % (get_datetime(), len(q)))
-        for c in q:
-            self.cache.append(c.oRecordData['cont_id'])
-
-        click.echo('%s Complete with index' % get_datetime())
+        try:
+            if 'limit' in kwargs.keys():
+                q = self.client.command('select cont_id from Monologue LIMIT %d' % kwargs['limit'])
+            else:
+                q = self.client.command('select cont_id from Monologue')
+            click.echo('%s ...of %d vertices...' % (get_datetime(), len(q)))
+            for c in q:
+                self.cache.append(c.oRecordData['cont_id'])
+    
+            click.echo('%s Complete with index' % get_datetime())
+        except Exception as e:
+            if 'WORKER TIMEOUT' in str(e):
+                click.echo(str(e), ' Likely an error in which there is nothing in the DB')
+            else:
+                click.echo('Unknown error', str(e))
 
     def initialize_db(self):
 
