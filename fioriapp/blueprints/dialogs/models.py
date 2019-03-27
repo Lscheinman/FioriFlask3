@@ -86,6 +86,25 @@ class OrientModel():
         except:
             self.create_db()
 
+    def check_classes(self):
+        """
+        Make sure all the classes are in the ODB
+        Take the length of all classes in the model as a checklist/iterator
+        :return:
+        """
+        models_to_check = len(self.models.keys())
+        models = 0
+        for i in self.client.command(''' select expand(classes).name from metadata:schema '''):
+            try:
+                if i.oRecordData['name'] in self.models.keys():
+                    models+=1
+                if models == models_to_check:
+                    return True
+            except:
+                pass
+
+        return False
+
     def fill_index(self, **kwargs):
         click.echo('%s Preparing index...' % get_datetime())
         if 'limit' in kwargs.keys():
@@ -133,7 +152,6 @@ class OrientModel():
                 click.echo(click.style('%s created' % self.db_name, fg='green'))
         except Exception as e:
             click.echo(click.style(str(e), fg='red'))
-
 
     def create_content_node(self, **kwargs):
         """
@@ -448,13 +466,13 @@ class DataPrep():
             i += 1
 
 
-
 class Extractor():
 
     def __init__(self):
         self.odb = OrientModel()
         if self.odb.check_db() in [False, 'False'] :
-            self.odb.initialize_db()
+            if self.odb.check_classes() in [False, 'False']:
+                self.odb.initialize_db()
         self.odb.open_db()
         self.dp = DataPrep()
         self.dp.get_folders()
