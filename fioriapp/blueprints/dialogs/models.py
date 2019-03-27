@@ -5,6 +5,7 @@ import json
 import click
 from datetime import datetime
 from difflib import SequenceMatcher
+from pyorient.ogm import Graph, Config
 
 
 def clean(content):
@@ -36,7 +37,7 @@ class OrientModel():
         try:
             self.session_id = self.client.connect(self.user, self.pswd)
         except:
-            click.echo("Failed to connect: ")
+            graph = Graph(Config.from_url('localhost/test','root', 'root'))
 
         '''TODO, can later show value of ODB where you don't need to change the Extract Report when adding users and
          associating them with the file extracted
