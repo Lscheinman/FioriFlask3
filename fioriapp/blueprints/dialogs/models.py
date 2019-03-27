@@ -34,7 +34,7 @@ class OrientModel():
         self.db_name = "Dialogs"
         self.client = pyorient.OrientDB("localhost", 2424)
         time.sleep(10)
-        possible_hosts = ['172.19.0.2', '172.19.0.3', '172.19.0.4', '172.19.0.5', '172.19.0.6', '172.19.0.7']
+        possible_hosts = ["172.19.0.2", "172.19.0.3", "172.19.0.4", "172.19.0.5", "172.19.0.6", "172.19.0.7"]
         for h in possible_hosts:
             client = pyorient.OrientDB(h, 2424)
             try:
