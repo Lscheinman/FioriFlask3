@@ -33,6 +33,7 @@ class OrientModel():
         self.stderr = False
         self.db_name = "Dialogs"
         self.client = pyorient.OrientDB("localhost", 2424)
+        # Following is a work around to connecting to Dockerized ODB. Wait for ODB to setup and start with sleep, then cycle through potential addresses
         time.sleep(10)
         possible_hosts = ["172.19.0.2", "172.19.0.3", "172.19.0.4", "172.19.0.5", "172.19.0.6", "172.19.0.7"]
         for h in possible_hosts:
@@ -128,10 +129,10 @@ class OrientModel():
                 click.echo(click.style('%s found so being dropped' % self.db_name, fg='blue'))
             except Exception as e:
                 click.echo(click.style(str(e), fg='red'))
-                self.client.db_create(self.db_name, pyorient.DB_TYPE_GRAPH)
                 click.echo(click.style('%s created' % self.db_name, fg='green'))
         except Exception as e:
             click.echo(click.style(str(e), fg='red'))
+        self.client.db_create(self.db_name, pyorient.DB_TYPE_GRAPH)
 
     def create_content_node(self, **kwargs):
         """
