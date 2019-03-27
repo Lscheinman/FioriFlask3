@@ -16,6 +16,8 @@ services:
       - '8000:8000'
     links:
       - orientdb
+    depends_on:
+      - orientdb
 
   postgres:
     image: 'postgres:9.5'
