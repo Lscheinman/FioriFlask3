@@ -129,10 +129,11 @@ class OrientModel():
                 click.echo(click.style('%s found so being dropped' % self.db_name, fg='blue'))
             except Exception as e:
                 click.echo(click.style(str(e), fg='red'))
+                self.client.db_create(self.db_name, pyorient.DB_TYPE_GRAPH)
                 click.echo(click.style('%s created' % self.db_name, fg='green'))
         except Exception as e:
             click.echo(click.style(str(e), fg='red'))
-        self.client.db_create(self.db_name, pyorient.DB_TYPE_GRAPH)
+
 
     def create_content_node(self, **kwargs):
         """
