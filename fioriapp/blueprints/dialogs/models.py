@@ -47,7 +47,9 @@ class OrientModel():
                     self.client = pyorient.OrientDB("172.19.0.3", 2424)
                     self.session_id = self.client.connect(self.user, self.pswd)
                 except:
-                    click.echo('Try4')       
+                    click.echo('Try4')
+                    self.client = pyorient.OrientDB("172.19.0.2", 2424)
+                    self.session_id = self.client.connect(self.user, self.pswd)
 
         '''TODO, can later show value of ODB where you don't need to change the Extract Report when adding users and
          associating them with the file extracted
