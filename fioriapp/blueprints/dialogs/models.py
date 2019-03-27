@@ -36,7 +36,7 @@ class OrientModel():
         time.sleep(10)
         possible_hosts = ["172.19.0.2", "172.19.0.3", "172.19.0.4", "172.19.0.5", "172.19.0.6", "172.19.0.7"]
         for h in possible_hosts:
-            client = pyorient.OrientDB("%s" % h, 2424)
+            self.client = pyorient.OrientDB("%s" % h, 2424)
             try:
                 session_id = self.client.connect(self.user, self.pswd)
                 click.echo('Connected to %s' % h)
