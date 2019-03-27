@@ -1,0 +1,19 @@
+<core:FragmentDefinition
+		xmlns:vbm="sap.ui.vbm"
+		xmlns:core="sap.ui.core">
+		<vbm:GeoMap id="GeoMap"
+			width="100%">
+			<vbm:vos>
+				<vbm:Spots click="onClickItem" posChangeable="true"
+					scaleChangeable="false" contextMenu="onContextMenuItem" items="{/Spots/items}">
+					<vbm:items>
+						<vbm:Spot id="Spot" position="{pos}" tooltip="{tooltip}"
+							type="{type}" text="{text}" contentOffset="{contentOffset}"
+							click="onClickSpot" contextMenu="onContextMenuSpot">
+						</vbm:Spot>
+					</vbm:items>
+				</vbm:Spots>
+			</vbm:vos>
+		</vbm:GeoMap>
+
+</core:FragmentDefinition>

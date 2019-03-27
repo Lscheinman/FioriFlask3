@@ -1,0 +1,49 @@
+version: '2'
+
+services:
+  website:
+    build: .
+    command: >
+      gunicorn -b 0.0.0.0:8000
+        --access-logfile -
+        --reload
+        "fioriapp.app:create_app()"
+    environment:
+      PYTHONUNBUFFERED: 'true'
+    volumes:
+      - '.:/fioriapp'
+    ports:
+      - '8000:8000'
+
+  postgres:
+    image: 'postgres:9.5'
+    env_file:
+      - '.env'
+    volumes:
+      - 'postgres:/var/lib/postgresql/data'
+    ports:
+      - '5432:5432'
+
+  orientdb:
+    image: 'orientdb:2.2.20'
+    command: 'dserver.sh'
+    ports:
+      - '2424:2424'
+      - '2480:2480'
+    environment:
+      ORIENTDB_ROOT_PASSWORD: 'root'
+    volumes:
+      - '/var/orientdb/databases:/opt/orientdb/databases'
+
+  celery:
+    build: .
+    command: celery worker -l info -A fioriapp.blueprints.contact.tasks
+    env_file:
+      - '.env'
+    volumes:
+      - '.:/fioriapp'
+
+
+volumes:
+  postgres:
+  orientdb:

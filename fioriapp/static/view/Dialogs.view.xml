@@ -1,0 +1,37 @@
+<mvc:View id="Main"
+          controllerName="sap.ui.demo.basicTemplate.controller.Dialogs"
+          xmlns:mvc="sap.ui.core.mvc"
+          displayBlock="true"
+          xmlns="sap.f"
+          xmlns:core="sap.ui.core"
+          xmlns:m="sap.m">
+    <m:Page class="secondPage" title="{i18n>title}" showFooter="true">
+        <m:customHeader class="NavToolbar">
+            <core:Fragment fragmentName="sap.ui.demo.basicTemplate.view.Fragments.Dialogs.Header" type="XML"/>
+        </m:customHeader>
+            <m:content>
+                <FlexibleColumnLayout id="fcl" initialMidColumnPage="start" layout="TwoColumnsMidExpanded">
+                    <beginColumnPages>
+                        <m:Page showHeader="false">
+                            <m:VBox class="sapContrast sapContrastPlus sapUiSmallMargin notificationHolder">
+					            <m:NotificationListItem title="New CONOP" description="Request for Approval"
+						            showCloseButton="false" datetime="1 hour" unread="true" priority="None" ></m:NotificationListItem>
+				            </m:VBox>
+                        </m:Page>
+                    </beginColumnPages>
+                    <midColumnPages>
+                        <m:Page id="start" showHeader="false">
+                            <m:content>
+                                <core:Fragment fragmentName="sap.ui.demo.basicTemplate.view.Fragments.Dialogs.Details" type="XML"/>
+                            </m:content>
+                        </m:Page>
+                    </midColumnPages>
+                </FlexibleColumnLayout>
+            </m:content>
+            <m:footer>
+                <m:Toolbar>
+                    <m:ToolbarSpacer/>
+                </m:Toolbar>
+            </m:footer>
+        </m:Page>
+</mvc:View>

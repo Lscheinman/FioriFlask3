@@ -1,0 +1,1 @@
+from fioriapp.blueprints.dialogs.views import dialogs

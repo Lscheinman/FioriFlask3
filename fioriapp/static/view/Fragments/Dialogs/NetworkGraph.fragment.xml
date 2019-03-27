@@ -1,0 +1,62 @@
+<core:FragmentDefinition
+		xmlns="sap.suite.ui.commons.networkgraph"
+		xmlns:l="sap.ui.layout"
+		xmlns:core="sap.ui.core"
+		xmlns:layout="sap.suite.ui.commons.networkgraph.layout"
+		xmlns:m="sap.m">
+	<l:FixFlex>
+		<l:fixContent>
+			<m:FlexBox fitContainer="true" renderType="Bare" wrap="Wrap" id="graphWrapper2">
+				<m:items>
+			<Graph
+					nodes="{/nodes}"
+					lines="{/lines}"
+					groups="{/groups}"
+					id="graph">
+				<layoutData>
+					<m:FlexItemData/>
+				</layoutData>
+				<layoutAlgorithm>
+					<layout:ForceBasedLayout
+>
+					</layout:ForceBasedLayout>
+				</layoutAlgorithm>
+				<nodes>
+					<Node
+							height="{settings>/height}"
+							key="{key}"
+							title="{title}"
+							icon="{icon}"
+							group="{group}"
+							attributes="{path:'attributes', templateShareable:true}"
+							shape="{shape}"
+							status="{status}"
+							x="{x}"
+							y="{y}">
+						<attributes>
+							<ElementAttribute
+									label="{label}"
+									value="{value}"/>
+						</attributes>
+					</Node>
+				</nodes>
+				<lines>
+					<Line
+							from="{from}"
+							to="{to}"
+							status="{status}"
+					>
+					</Line>
+				</lines>
+				<groups>
+					<Group
+							key="{key}"
+							title="{title}">
+					</Group>
+				</groups>
+			</Graph>
+			</m:items>
+			</m:FlexBox>
+		</l:fixContent>
+	</l:FixFlex>
+</core:FragmentDefinition>

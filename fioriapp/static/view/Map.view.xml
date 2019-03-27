@@ -1,0 +1,28 @@
+<core:View
+        controllerName="sap.ui.demo.basicTemplate.controller.Map"
+        xmlns:m="sap.m"
+        xmlns:core="sap.ui.core">
+	<m:Page class="firstPage" title="Home">
+		<m:customHeader class="NavToolbar">
+    		<core:Fragment fragmentName="sap.ui.demo.basicTemplate.view.Fragments.Header" type="XML"/>
+    	</m:customHeader>
+		<m:content>
+		<m:HBox class="mainPage" renderType="Bare">
+				<m:VBox height="700px" width="100%" id="map_canvas_full" class="sapUiTinyMarginTop sapUiTinyMarginBegin">
+
+					<m:VBox class="filterFloater">
+						<m:VBox class="sapUiSmallMargin">
+							<m:Button type="Transparent" text="All Attachments" />
+							<m:Button type="Transparent" text="Alerts on current Attachments" />
+							<m:Button type="Transparent" text="PBR’s" />
+						</m:VBox>
+					</m:VBox>
+
+
+				</m:VBox>
+
+			</m:HBox>
+
+		</m:content>
+	</m:Page>
+</core:View>

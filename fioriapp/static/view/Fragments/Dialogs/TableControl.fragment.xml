@@ -1,0 +1,53 @@
+<core:FragmentDefinition
+	xmlns="sap.suite.ui.commons"
+	xmlns:m="sap.m"
+	xmlns:viz="sap.viz.ui5.controls"
+	xmlns:core="sap.ui.core">
+    <ChartContainer
+        class="sapUiNoContentPadding"
+        id="chartContainer"
+        showFullScreen="false"
+        showPersonalization="false"
+        autoAdjustHeight="true"
+        personalizationPress="attachPersonalizationPress"
+        contentChange="attachContentChange"
+        title="Insights">
+        <content>
+            <ChartContainerContent
+                icon="sap-icon://line-chart"
+                title="Line Chart">
+                <content>
+                    <core:Fragment fragmentName="sap.ui.demo.basicTemplate.view.Fragments.Dialogs.Charts" type="XML" />
+                </content>
+            </ChartContainerContent>
+            <ChartContainerContent
+                icon="sap-icon://table-view"
+                title="Table">
+                <content>
+                    <m:Table id="chartContainerContentTable"></m:Table>
+                </content>
+            </ChartContainerContent>
+            <ChartContainerContent
+                icon="sap-icon://overview-chart"
+                title="Network Graph">
+                <content>
+                    <core:Fragment fragmentName="sap.ui.demo.basicTemplate.view.Fragments.Dialogs.NetworkGraph" type="XML" />
+                </content>
+            </ChartContainerContent>
+            <ChartContainerContent
+                icon="sap-icon://choropleth-chart"
+                title="Locations">
+                <content>
+                    <core:Fragment fragmentName="sap.ui.demo.basicTemplate.view.Fragments.Dialogs.GeoMap" type="XML" />
+                </content>
+            </ChartContainerContent>
+            <ChartContainerContent
+                icon="sap-icon://browse-folder"
+                title="Locations">
+                <content>
+                    <core:Fragment fragmentName="sap.ui.demo.basicTemplate.view.Fragments.Dialogs.FileManager" type="XML" />
+                </content>
+            </ChartContainerContent>
+        </content>
+    </ChartContainer>
+</core:FragmentDefinition>

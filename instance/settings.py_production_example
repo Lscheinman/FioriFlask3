@@ -1,0 +1,16 @@
+DEBUG = False
+
+SERVER_NAME = 'fioriapp.com'
+SECRET_KEY = 'generateastrong128chartoken'
+
+MAIL_USERNAME = 'you@realemailaccount.com'
+MAIL_PASSWORD = 'thebestpasswordyouevermade'
+
+CELERY_BROKER_URL = 'redis://:amuchmoresecurepassword@redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://:amuchmoresecurepassword@redis:6379/0'
+
+db_uri = 'postgresql://fioriapp:themostsecurepasswordevercreated@postgres:5432/fioriapp'
+SQLALCHEMY_DATABASE_URI = db_uri
+
+SEED_ADMIN_EMAIL = 'you@realemailaccount.com'
+SEED_ADMIN_PASSWORD = 'thebestpasswordyouevermade'

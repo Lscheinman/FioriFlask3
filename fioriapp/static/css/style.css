@@ -1,0 +1,7 @@
+/* add your custom styles here */
+.mapContainer {
+	width: 22rem;
+	min-height: 22rem;
+	border: 1px solid rgba(0,0,0, .5);
+	border-radius: 10px;
+}

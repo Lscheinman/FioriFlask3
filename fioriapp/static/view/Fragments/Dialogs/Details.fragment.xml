@@ -1,0 +1,97 @@
+<core:FragmentDefinition
+        xmlns="sap.m"
+        xmlns:f="sap.f"
+        xmlns:core="sap.ui.core"
+        xmlns:layout="sap.ui.layout"
+		xmlns:form="sap.ui.layout.form">
+	<f:DynamicPage
+			id="Dialogs.dynamicPageId"
+			preserveHeaderStateOnScroll="true"
+			headerExpanded="{/headerExpanded}"
+			fitContent="true">
+		<!-- DynamicPage Title -->
+		<f:title>
+			<f:DynamicPageTitle>
+				<f:heading>
+					<Title text="Dialog Actions"/>
+				</f:heading>
+				<f:actions>
+					<Button text="Clear" type="Transparent" press="clearFilter" />
+					<ToolbarSpacer/>
+				</f:actions>
+			</f:DynamicPageTitle>
+		</f:title>
+		<!-- DynamicPage Header -->
+		<f:header>
+			<f:DynamicPageHeader pinnable="true">
+				<f:content class="sapFDynamicPageAlignContent" width="auto">
+					<HBox alignItems="Start" justifyContent="SpaceBetween">
+					<!--<layout:HorizontalLayout allowWrapping="true" >-->
+						<layout:VerticalLayout class="sapUiMediumMarginEnd">
+							<form:SimpleForm id="Dialog.get_response"
+											 layout="ResponsiveGridLayout"
+											 title="Get a Response">
+								<form:content>
+									<Label text="Response type" />
+									<Select id="Dialog.get_response.rtype">
+										<items>
+											<core:Item text="Next line"  key="nextline"/>
+											<core:Item text="Response"   key="response"/>
+										</items>
+									</Select>
+									<Label text="Statement" />
+									<Input id="Dialog.get_response.input"/>
+									<Label text="Tags" />
+									<Input id="Dialog.get_response.tags"/>
+									<Button text="Get" type="Emphasized" press="getResponse" />
+								</form:content>
+							</form:SimpleForm>
+						</layout:VerticalLayout>
+						<layout:VerticalLayout class="sapUiMediumMarginEnd">
+							<form:SimpleForm id="Dialog.create_monologue"
+												editable="true"
+												layout="ResponsiveGridLayout"
+												title="Create a Monologue"
+										>
+								<form:content>
+									<Label text="Statement" />
+									<Input id="Dialog.create_monologue.lines"/>
+									<Label text="Tags" />
+									<Input id="Dialog.create_monologue.tags"/>
+									<Button text="Create" type="Emphasized" press="createMonologue" />
+								</form:content>
+							</form:SimpleForm>
+						</layout:VerticalLayout>
+						<layout:VerticalLayout class="sapUiMediumMarginEnd">
+							<form:SimpleForm id="Dialog.create_duo"
+												layout="ResponsiveGridLayout"
+												title="Create Dialog"
+										>
+								<form:content>
+									<Label text="Statement" />
+									<Input id="Dialog.create_duo.from_input"/>
+									<Label text="Response" />
+									<Input id="Dialog.create_duo.to_input"/>
+									<Label text="Tags" />
+									<Input id="Dialog.create_duo.tags"/>
+									<Button text="Create" type="Emphasized" press="createDialog" />
+								</form:content>
+							</form:SimpleForm>
+						</layout:VerticalLayout>
+					</HBox>
+					<!--</layout:HorizontalLayout>-->
+				</f:content>
+			</f:DynamicPageHeader>
+		</f:header>
+		<f:content class="sapUiNoContentPadding">
+				<core:Fragment fragmentName="sap.ui.demo.basicTemplate.view.Fragments.Dialogs.TableControl" type="XML" />
+		</f:content>
+		<!-- DynamicPage Footer -->
+		<f:footer>
+			<OverflowToolbar>
+				<Button type="Accept" text="Accept"/>
+				<Button type="Reject" text="Reject"/>
+			</OverflowToolbar>
+		</f:footer>
+	</f:DynamicPage>
+</core:FragmentDefinition>

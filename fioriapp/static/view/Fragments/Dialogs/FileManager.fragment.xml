@@ -1,0 +1,181 @@
+<core:FragmentDefinition
+        xmlns="sap.m"
+        xmlns:core="sap.ui.core"
+		xmlns:form="sap.ui.layout.form"
+        xmlns:u="sap.ui.unified">
+        <form:SimpleForm id="FileManager.get_response"
+                     layout="ResponsiveGridLayout"
+                     title="File Manager">
+        <form:content>
+            <VBox class="sapUiSmallMargin">
+                <Table id="idAvailableFiles"
+                inset="false"
+                items="{
+                    path: '/',
+                    sorter: {
+                        path: 'filename'
+                    }
+                }">
+                <headerToolbar>
+                    <Toolbar>
+                        <Title text="Integrated dialogs files"/>
+                        <ToolbarSpacer></ToolbarSpacer>
+                        <Button	icon="sap-icon://download" press="onDataExport" />
+                    </Toolbar>
+                </headerToolbar>
+                <columns>
+                    <Column
+                        id="fileNameCol"
+                        width="12em"
+                        hAlign="Center">
+                        <Text text="File name" />
+                    </Column>
+                    <Column
+                        id="fileTypeCol"
+                        minScreenWidth="Tablet"
+                        hAlign="Center">
+                        <Text text="Type" />
+                    </Column>
+                    <Column
+                        id="fileDateCol"
+                        minScreenWidth="Tablet"
+                        demandPopin="true"
+                        hAlign="Center">
+                        <Text text="Created" />
+                    </Column>
+                    <Column
+                        id="fileDateStartCol"
+                        minScreenWidth="Tablet"
+                        demandPopin="true"
+                        hAlign="Center">
+                        <Text text="Started" />
+                    </Column>
+                    <Column
+                        id="fileDateEndCol"
+                        minScreenWidth="Tablet"
+                        demandPopin="true"
+                        hAlign="Center">
+                        <Text text="Finished" />
+                    </Column>
+                    <Column
+                        id="fileStatus"
+                        minScreenWidth="Tablet"
+                        demandPopin="true"
+                        hAlign="Center">
+                        <Text text="Status" />
+                    </Column>
+                    <Column
+                        id="fileSizeCol"
+                        minScreenWidth="Tablet"
+                        demandPopin="true"
+                        hAlign="Center">
+                        <Text text="Size" />
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <Text
+                                text="{filename}" />
+                            <Text
+                                text="{file_type}" />
+                            <Text
+                                text="{create_date}" />
+                            <Text
+                                text="{process_start}" />
+                            <Text
+                                text="{process_end}" />
+                            <Text
+                                text="{status}" />
+                            <Text
+                                text="{file_size}" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+                </Table>
+                <Table id="idUploadFiles"
+                inset="false"
+                items="{
+                    path: '/',
+                    sorter: {
+                        path: 'filename'
+                    }
+                }">
+                    <headerToolbar>
+                        <Toolbar>
+                            <Title text="Upload new file"/>
+                            <ToolbarSpacer></ToolbarSpacer>
+                            <Button	icon="sap-icon://upload" press="handleUploadPress" />
+                        </Toolbar>
+                    </headerToolbar>
+                    <columns>
+                        <Column
+                            id="upfileNameCol"
+                            width="12em"
+                            hAlign="Center">
+                            <Text text="File name" />
+                        </Column>
+                        <Column
+                            id="upfileTypeCol"
+                            minScreenWidth="Tablet"
+                            hAlign="Center">
+                            <Text text="Type" />
+                        </Column>
+                        <Column
+                            id="upfileDateCol"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            hAlign="Center">
+                            <Text text="Created" />
+                        </Column>
+                        <Column
+                            id="upfileSizeCol"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            hAlign="Center">
+                            <Text text="Size" />
+                        </Column>
+                        <Column
+                            id="upfileStartCol"
+                            minScreenWidth="Tablet"
+                            demandPopin="true"
+                            hAlign="Center">
+                            <Text text="Process" />
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text
+                                    text="{filename}" />
+                                <Text
+                                    text="{file_type}" />
+                                <Text
+                                    text="{create_date}" />
+                                <Text
+                                    text="{file_size}" />
+                                <Button icon="sap-icon://process" press="processUploadedFile" />
+                            </cells>
+
+                        </ColumnListItem>
+                    </items>
+                </Table>
+                <u:FileUploader
+                    id="fileUploader"
+                    name="file"
+                    uploadUrl="Dialogs/upload"
+                    tooltip="Upload your file to the local server"
+                    uploadComplete="handleUploadComplete"
+                    change="handleValueChange"
+                    typeMissmatch="handleTypeMissmatch"
+                    fileType="txt,csv,xlsx,xls"
+                    style="Emphasized"
+                    placeholder="Choose a file for Upload...">
+                </u:FileUploader>
+
+            </VBox>
+        </form:content>
+    </form:SimpleForm>
+
+
+</core:FragmentDefinition>

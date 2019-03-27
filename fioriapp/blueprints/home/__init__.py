@@ -1,0 +1,1 @@
+from fioriapp.blueprints.home.views import home
