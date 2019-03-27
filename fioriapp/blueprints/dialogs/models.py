@@ -115,7 +115,7 @@ class OrientModel():
             click.echo('%s ...of %d vertices...' % (get_datetime(), len(q)))
             for c in q:
                 self.cache.append(c.oRecordData['cont_id'])
-    
+
             click.echo('%s Complete with index' % get_datetime())
         except Exception as e:
             if 'WORKER TIMEOUT' in str(e):
@@ -477,8 +477,10 @@ class Extractor():
     def __init__(self):
         self.odb = OrientModel()
         if self.odb.check_db() in [False, 'False'] :
-            if self.odb.check_classes() in [False, 'False']:
                 self.odb.initialize_db()
+        self.odb.open_db()
+        if self.odb.check_classes() in [False, 'False']:
+            self.odb.initialize_db()
         self.odb.open_db()
         self.dp = DataPrep()
         self.dp.get_folders()
