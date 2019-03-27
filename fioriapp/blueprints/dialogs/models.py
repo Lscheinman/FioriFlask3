@@ -34,22 +34,15 @@ class OrientModel():
         self.db_name = "Dialogs"
         self.client = pyorient.OrientDB("localhost", 2424)
         time.sleep(10)
-        try:
-            self.session_id = self.client.connect(self.user, self.pswd)
-        except:
+        possible_hosts = ["172.19.0.2", "172.19.0.3", "172.19.0.4", "172.19.0.5", "172.19.0.6", "172.19.0.7"]
+        for h in possible_hosts:
+            client = pyorient.OrientDB("%s" % h, 2424)
             try:
-                click.echo('Try2')
-                self.client = pyorient.OrientDB("0.0.0.0", 2424)
-                self.session_id = self.client.connect(self.user, self.pswd)
+                session_id = self.client.connect(self.user, self.pswd)
+                click.echo('Connected to %s' % h)
+                break
             except:
-                try:
-                    click.echo('Try3')
-                    self.client = pyorient.OrientDB("172.19.0.3", 2424)
-                    self.session_id = self.client.connect(self.user, self.pswd)
-                except:
-                    click.echo('Try4')
-                    self.client = pyorient.OrientDB("172.19.0.2", 2424)
-                    self.session_id = self.client.connect(self.user, self.pswd)
+                click.echo('%s failed' % h)
 
         '''TODO, can later show value of ODB where you don't need to change the Extract Report when adding users and
          associating them with the file extracted
