@@ -28,7 +28,7 @@ class OrientModel():
         Set up the OrientDB specifically for graphing conversations
         """
         self.user = "root"
-        self.pswd = "admin"
+        self.pswd = "root"
         self.stderr = False
         self.db_name = "Dialogs"
         self.client = pyorient.OrientDB("localhost", 2424)
