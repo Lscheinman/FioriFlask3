@@ -81,10 +81,7 @@ class OrientModel():
         self.cache = []
 
     def open_db(self):
-        try:
-            self.client.db_open(self.db_name , self.user, self.pswd)
-        except:
-            self.create_db()
+        self.client.db_open(self.db_name , self.user, self.pswd)
 
     def check_classes(self):
         """
