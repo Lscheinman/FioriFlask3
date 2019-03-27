@@ -32,6 +32,7 @@ class OrientModel():
         self.stderr = False
         self.db_name = "Dialogs"
         self.client = pyorient.OrientDB("localhost", 2424)
+        time.sleep(10)
         try:
             self.session_id = self.client.connect(self.user, self.pswd)
         except:
