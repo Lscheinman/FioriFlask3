@@ -32,7 +32,11 @@ class OrientModel():
         self.stderr = False
         self.db_name = "Dialogs"
         self.client = pyorient.OrientDB("localhost", 2424)
+        click.echo('Waiting for ODB to complete setup')
+        time.sleep(20)
         self.session_id = self.client.connect(self.user, self.pswd)
+        click.echo('Completing set up')
+
         '''TODO, can later show value of ODB where you don't need to change the Extract Report when adding users and
          associating them with the file extracted
         '''
