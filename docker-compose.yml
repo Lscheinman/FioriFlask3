@@ -14,6 +14,8 @@ services:
       - '.:/fioriapp'
     ports:
       - '8000:8000'
+    links:
+      - orientdb
 
   postgres:
     image: 'postgres:9.5'
