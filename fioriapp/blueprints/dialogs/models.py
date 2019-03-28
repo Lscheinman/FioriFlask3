@@ -43,7 +43,7 @@ class OrientModel():
         time.sleep(10)
         possible_hosts = ["localhost", "172.19.0.2", "172.19.0.3", "172.19.0.4", "172.19.0.5", "172.19.0.6", "172.19.0.7"]
         self.user = "root"
-        self.pswd = "admin"
+        self.pswd = "root"
         self.stderr = False
         self.db_name = "Dialogs"
 
