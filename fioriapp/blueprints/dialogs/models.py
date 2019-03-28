@@ -567,7 +567,7 @@ class Extractor():
         for f in self.dp.list_files()['files']:
             click.echo('\t\t%s' % f)
         if self.odb.checks['demo_data'] == False:
-            self.odb.check['demo_data'] = self.set_demo_data()
+            self.odb.checks['demo_data'] = self.set_demo_data()
 
     @staticmethod
     def ex_node_with_dialog(data):
