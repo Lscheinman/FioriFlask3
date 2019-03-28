@@ -551,7 +551,6 @@ class Extractor():
             self.odb.initialize_db()
         self.dp = DataPrep()
         self.dp.get_folders()
-        self.dp.list_files()
         self.report_every = 100
         self.last_report_dtg = 0
         self.last_lap = 0
@@ -564,6 +563,9 @@ class Extractor():
              'd_id': ['dialogueID']
              }
         )
+        click.echo('[Extractor_init_%s] Following files in data' % (get_datetime()))
+        for f in self.dp.list_files()['files']:
+            click.echo('\t\t%s' % f)
         if self.odb.checks['demo_data'] == False:
             self.odb.check['demo_data'] = self.set_demo_data()
 
