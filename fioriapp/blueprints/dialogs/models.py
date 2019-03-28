@@ -3,12 +3,17 @@ import os, time, string
 import pandas as pd
 import json
 import click
+from threading import Thread
 from datetime import datetime
 from difflib import SequenceMatcher
-from pyorient.ogm import Graph, Config
 
 
 def clean(content):
+    """
+    Utility function for returning cleaned strings into a normalized format for keys
+    :param content:
+    :return:
+    """
     try:
         content = content.lower().translate(str.maketrans('', '', string.punctuation)).replace(" ", "")
     except Exception as e:
@@ -19,6 +24,10 @@ def clean(content):
 
 
 def get_datetime():
+    """
+    Utility function for returning a common standard datetime
+    :return:
+    """
     return datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 
 
@@ -27,23 +36,25 @@ class OrientModel():
     def __init__(self):
         """
         Set up the OrientDB specifically for graphing conversations
+        Start with a work around for connecting to Dockerized ODB.
+        1) Wait for ODB to setup and start with sleep
+        2) Cycle through potential addresses and try connecting to each, breaking when one works
         """
+        time.sleep(10)
+        possible_hosts = ["localhost", "172.19.0.2", "172.19.0.3", "172.19.0.4", "172.19.0.5", "172.19.0.6", "172.19.0.7"]
         self.user = "root"
-        self.pswd = "root"
+        self.pswd = "admin"
         self.stderr = False
         self.db_name = "Dialogs"
-        self.client = pyorient.OrientDB("localhost", 2424)
-        # Following is a work around to connecting to Dockerized ODB. Wait for ODB to setup and start with sleep, then cycle through potential addresses
-        time.sleep(10)
-        possible_hosts = ["172.19.0.2", "172.19.0.3", "172.19.0.4", "172.19.0.5", "172.19.0.6", "172.19.0.7"]
+
         for h in possible_hosts:
             self.client = pyorient.OrientDB("%s" % h, 2424)
             try:
-                session_id = self.client.connect(self.user, self.pswd)
-                click.echo('Connected to %s' % h)
+                self.session_id = self.client.connect(self.user, self.pswd)
+                click.echo('[OrientModel_init__%s] successfully connected to %s' % (get_datetime(), h))
                 break
             except:
-                click.echo('%s failed' % h)
+                click.echo('[OrientModel_init__%s] %s failed' % (get_datetime(), h))
 
         '''TODO, can later show value of ODB where you don't need to change the Extract Report when adding users and
          associating them with the file extracted
@@ -79,9 +90,37 @@ class OrientModel():
                             }
                        }
         self.cache = []
+        self.checks = {
+            'demo_data': False,
+            'open_db': False,
+            'created': False,
+            'initialized': False
+                       }
+
+    def run_diagnostics(self):
+        """
+        Check the status and change check flags where applicable
+        :return:
+        """
+        self.checks['created'] = self.check_db()
+        if self.checks['created']:
+            self.open_db()
+        if self.checks['open_db'] == True:
+            self.checks['initialized'] = self.check_classes()
+        if self.checks['initialized']:
+            self.checks['demo_data'] = self.fill_index()
 
     def open_db(self):
-        self.client.db_open(self.db_name , self.user, self.pswd)
+        """
+        Simply use the Pyorient client to open a DB which is required for any commands
+        :return:
+        """
+        if self.checks['open_db'] == False and self.checks['created'] == True:
+            self.client.db_open(self.db_name, self.user, self.pswd)
+            click.echo('[OrientModel_open_db_%s] %s opened' % (get_datetime(), self.db_name))
+            self.checks['open_db'] = True
+        else:
+            click.echo('[OrientModel_open_db_%s] %s already open' % (get_datetime(), self.db_name))
 
     def check_classes(self):
         """
@@ -96,34 +135,63 @@ class OrientModel():
                 if i.oRecordData['name'] in self.models.keys():
                     models+=1
                 if models == models_to_check:
+                    click.echo(
+                        '[OrientModel_check_classes_%s] All %d classes found' % (get_datetime(), models_to_check))
                     return True
             except:
                 pass
 
+        click.echo(
+            '[OrientModel_check_classes_%s] Only %d of %d classes found' % (get_datetime(), models, models_to_check))
+
         return False
 
     def fill_index(self, **kwargs):
-        click.echo('%s Preparing index...' % get_datetime())
+        """
+        Create an index of ODB vertex classes to prevent lookups.
+        Index is a list attribute of the OrientModel class and will contain index keys of verticies, in this case
+        cont_id
+        :param kwargs: limit on index size
+        :return:
+        """
+        click.echo('[OrientModel_fill_index_%s] filling index...' % (get_datetime()))
         try:
             if 'limit' in kwargs.keys():
                 q = self.client.command('select cont_id from Monologue LIMIT %d' % kwargs['limit'])
             else:
                 q = self.client.command('select cont_id from Monologue')
-            click.echo('%s ...of %d vertices...' % (get_datetime(), len(q)))
+            click.echo('[OrientModel_fill_index_%s] ...of %d vertices...' % (get_datetime(), len(q)))
             for c in q:
                 self.cache.append(c.oRecordData['cont_id'])
 
-            click.echo('%s Complete with index' % get_datetime())
         except Exception as e:
             if 'WORKER TIMEOUT' in str(e):
                 click.echo(str(e), ' Likely an error in which there is nothing in the DB')
+                click.echo('[ERROR: OrientModel_fill_index_%s] '
+                           'Likely an error in which there is nothing in the DB' % (get_datetime()))
             else:
-                click.echo('Unknown error', str(e))
+                click.echo('[ERROR: OrientModel_fill_index_%s] '
+                           'Unknown error: %s' % (get_datetime(), str(e)))
+
+        if len(self.cache) == 0:
+            return False
+        else:
+            return True
 
     def initialize_db(self):
-
-        self.create_db()
-        self.open_db()
+        """
+        Build the schema in OrientDB using the models established in __init__
+        1) Create the DB if it hasn't been created
+        2) Open it if it is not already
+        3) Cycle through the model configuration
+        4) Use a rule that if 'id' is part of the model, then it should have an index
+        :return:
+        """
+        click.echo('[OrientModel_initialize_db_%s] Starting process...' % (get_datetime()))
+        if self.checks['created'] == False:
+            self.create_db()
+        if self.checks['open_db'] == False:
+            self.open_db()
         sql = ""
         for m in self.models:
             sql = sql+"create class %s extends %s;\n" % (m, self.models[m]['class'])
@@ -134,27 +202,38 @@ class OrientModel():
                         sql = sql + "create index %s_%s on %s (%s) UNIQUE ;\n" % (m, k, m, k)
 
         sql = sql + "create sequence idseq type ordered;"
+        click.echo('[OrientModel_initialize_db_%s]'
+                   ' Initializing db with following batch statement'
+                   '\n***************   SQL   ***************\n'
+                   '%s\n***************   SQL   ***************\n' % (get_datetime(), sql))
+        self.checks['initialized'] = True
 
         return self.client.batch(sql)
 
     def check_db(self):
-        try:
-            exists = self.client.db_exists(self.db_name, pyorient.STORAGE_TYPE_PLOCAL)
-            return exists
-        except Exception as e:
-            click.echo(str(e))
+        """
+        Run a Pyorient routine which checks if a DB exists in local storage
+        :return:
+        """
+        return self.client.db_exists(self.db_name, pyorient.STORAGE_TYPE_PLOCAL)
 
     def create_db(self):
+        """
+        Assumes this is called only when a there is no existing DB so will drop one if found by same name
+        :return:
+        """
         try:
-            try:
-                self.client.db_drop(self.db_name)
-                click.echo(click.style('%s found so being dropped' % self.db_name, fg='blue'))
-            except Exception as e:
-                click.echo(click.style(str(e), fg='red'))
-                self.client.db_create(self.db_name, pyorient.DB_TYPE_GRAPH)
-                click.echo(click.style('%s created' % self.db_name, fg='green'))
+            self.client.db_drop(self.db_name)
+            click.echo('[OrientModel_create_db_%s] %s found so being dropped' % (get_datetime(), self.db_name))
         except Exception as e:
-            click.echo(click.style(str(e), fg='red'))
+            if '.OStorageException' in str(e):
+                click.echo('[OrientModel_create_db_%s] Not found so being created' % (get_datetime()))
+            else:
+                click.echo('[OrientModel_create_db_%s] %s' % (get_datetime(), str(e)))
+
+        self.client.db_create(self.db_name, pyorient.DB_TYPE_GRAPH)
+        click.echo('[OrientModel_create_db_%s] %s created' % (get_datetime(), self.db_name))
+        self.checks['created'] = True
 
     def create_content_node(self, **kwargs):
         """
@@ -238,14 +317,6 @@ class OrientModel():
                kwargs['nfrom'],
                kwargs['nto'],
                kwargs['tags']))
-
-    def re_factor_edges(self):
-        # Need to go through all edges and find multiple counts
-        # Trim the edges by increasing the count for every 1 that is deleted until 1 is left (the one with the high count)
-        # Recreate the tags string from all the other strings
-        # Basically delete all edges and create a new one based on the count and iterated tags
-
-        return
 
     def get_node(self, **kwargs):
         """
@@ -382,22 +453,18 @@ class OrientModel():
 
         return response['results']
 
-    def get_edge(self):
-
-        """
-        Get the edge and properties including frequency and contexts
-        :return:
-        """
-
-        return
-
 
 class DataPrep():
 
     def __init__(self):
-
+        """
+        Class to deal with the application's back end folder structure. It knows to find the data and upload paths
+        which will be used to orchestrate interactions between extractions and database transactions.
+        """
         self.path = os.getcwd()
         self.data = os.path.join(self.path, "data")
+        self.upload = os.path.join(self.data, "upload")
+        self.acceptable_files = ['csv', 'txt', 'xls', 'xlsx']
         self.files = []
 
     def get_folders(self):
@@ -472,19 +539,23 @@ class DataPrep():
 class Extractor():
 
     def __init__(self):
+
         self.odb = OrientModel()
-        if self.odb.check_db() in [False, 'False'] :
-                self.odb.initialize_db()
-        self.odb.open_db()
-        if self.odb.check_classes() in [False, 'False']:
+        click.echo('[Extractor_init_%s] Running diagnostics on ODB' % (get_datetime()))
+        self.odb.run_diagnostics()
+        if self.odb.checks['created'] == False:
+            self.odb.create_db()
+        if self.odb.checks['open_db'] == False:
+            self.odb.open_db()
+        if self.odb.checks['initialized'] == False:
             self.odb.initialize_db()
-        self.odb.open_db()
         self.dp = DataPrep()
         self.dp.get_folders()
         self.dp.list_files()
         self.report_every = 100
         self.last_report_dtg = 0
         self.last_lap = 0
+        # Set up to look at the headers of files and determine the mapping to a common Dialog extraction pattern
         self.acceptable_headers = (
             {'content': ['posts', 'text'],
              'tags': ['type'],
@@ -493,6 +564,8 @@ class Extractor():
              'd_id': ['dialogueID']
              }
         )
+        if self.odb.checks['demo_data'] == False:
+            self.odb.check['demo_data'] = self.set_demo_data()
 
     @staticmethod
     def ex_node_with_dialog(data):
@@ -537,6 +610,12 @@ class Extractor():
         while 'http://www' in line or 'https://' in line:
             line = line[:line.find('http')] + line[line.find('http'):][line[line.find('http'):].find(' '):]
         return line
+
+    def set_demo_data(self):
+        click.echo('[Extractor_set_demo_data_%s] Inserting demo data...' % (get_datetime()))
+        dt = Thread(target=self.extract(file_path=os.path.join(self.dp.data, 'demo.csv')))
+        dt.start()
+        return True
 
     def ex_segs_from_lines(self, data, line, row):
         """
@@ -600,10 +679,6 @@ class Extractor():
 
             return cleaned_segs
 
-    def create_report(self):
-
-        return
-
     def report_progress(self, i, data):
         """
         Print the datetime, iterator count, and data for the length
@@ -611,15 +686,13 @@ class Extractor():
         :param data:
         :return:
         """
-
         now = time.time()
         lap = now - self.last_report_dtg
         chg = lap - self.last_lap
         self.last_lap = lap
         self.last_report_dtg = now
-        click.echo('%s: %d\%d rows complete. Lap: %f / %d' %
-                   (datetime.fromtimestamp(now).strftime('%Y-%m-%d %H:%M:%S'),
-                    i, len(data['d'].index), lap, chg))
+        click.echo('[Extractor_report_progress_%s] %d\%d rows complete. Lap: %f / %d' %
+                   (get_datetime(), i, len(data['d'].index), lap, chg))
 
         self.odb.update_extract_report(
             filename=data['basename'], status=datetime.fromtimestamp(now).strftime('%Y-%m-%d %H:%M:%S'))
@@ -695,7 +768,7 @@ class Extractor():
                     data['d_id'] = data['headers'][i]
                 i+=1
             # Rules to identify if it's a simple 2 column base or a running dialog with tagged conversations
-            if len(data['headers']) == 2 and 'mbti' in data['filename']:
+            if len(data['headers']) == 2 and ('mbti' in data['basename'] or 'demo' in data['basename']):
                 self.odb.update_extract_report(filename=data['basename'], status='Started',
                                                process_start=get_datetime())
                 data = self.ex_node_with_tag(data)
@@ -711,7 +784,7 @@ class Extractor():
             filename=data['basename'], process_end=datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
             process_time=int(tt/60)
         )
-
+        click.echo('[Extractor_extract_%s] Complete with demo data' % (get_datetime()))
         return data
 
 
@@ -785,36 +858,41 @@ class Queries:
         :param kwargs:
         :return:
         """
-        cont_id = clean(kwargs['phrase'])
+        in_cont_id = clean(kwargs['phrase'])
         rel_id = clean(kwargs['rel_text'])
         rtype = kwargs['rtype']
         content = c = ''
-        if cont_id in self.ex.odb.cache:
+        if in_cont_id in self.ex.odb.cache:
             # get the out from thr node with that cont_id
-            cont_id = self.ex.odb.get_node(cont_id=cont_id, rtype=rtype, e_tags=rel_id)
+            in_Node = self.ex.odb.get_node(cont_id=in_cont_id, rtype=rtype, e_tags=rel_id)
         else:
             self.create_monologue(line=kwargs['phrase'], tags=rel_id)
         sim = -1
         imp = 0
-        # TODO Need to have it as a response not a similar Mono
-        try:
-            for c in self.ex.odb.cache:
-                if sim < SequenceMatcher(None, c, cont_id).ratio():
-                    sim = SequenceMatcher(None, c, cont_id).ratio()
+        if len(in_Node['v_out']) > 0:
+        # Use tags to determine the most similar response
+            for nextLine in in_Node['v_out']:
+                if sim < SequenceMatcher(None, nextLine['tags'], in_Node['a_tags']).ratio():
+                    sim = SequenceMatcher(None, nextLine['tags'], in_Node['a_tags']).ratio()
                     imp+=1
                 if imp > 5:
                     break
             content = self.ex.odb.client.command(
-                '''select content from Monologue where cont_id = '%s' ''' % c)[0].oRecordData['content']
+                '''select content from Monologue where cont_id = '%s' 
+                ''' % nextLine['cont_id'])[0].oRecordData['content']
+            return {
+                'cont_id': in_cont_id,
+                'resp_id': nextLine['cont_id'],
+                'message': content
+            }
+        else:
+            return {
+                'cont_id': in_cont_id,
+                'resp_id': False,
+                'message': 'Not sure...what do you expect?'
+            }
 
-        except Exception as e:
-            c = cont_id
-            pass
 
-        return {
-            'cont_id': [cont_id, c],
-            'message': content
-        }
 
     def create_duo(self, **kwargs):
         """

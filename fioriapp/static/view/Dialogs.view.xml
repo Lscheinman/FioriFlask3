@@ -14,7 +14,7 @@
                     <beginColumnPages>
                         <m:Page showHeader="false">
                             <m:VBox class="sapContrast sapContrastPlus sapUiSmallMargin notificationHolder">
-					            <m:NotificationListItem title="New CONOP" description="Request for Approval"
+					            <m:NotificationListItem title="New Message" description="To be explored later"
 						            showCloseButton="false" datetime="1 hour" unread="true" priority="None" ></m:NotificationListItem>
 				            </m:VBox>
                         </m:Page>

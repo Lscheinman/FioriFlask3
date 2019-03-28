@@ -291,13 +291,15 @@ sap.ui.define([
 		updateGraph: function(oData, curModel){
 
             for (var i = 0; i < oData.nodes.length; i++){
-                if(!(oData.nodes[i].attributes[2].value in curModel.keys)){
+                if(!((curModel.keys.indexOf(oData.nodes[i].attributes[2].value) > -1))){
                     curModel.oData.nodes.push(oData.nodes[i]);
                     curModel.keys.push(oData.nodes[i].attributes[2].value);
                 }
 		    }
 		    for (var i = 0; i < oData.lines.length; i++){
-		        curModel.oData.lines.push(oData.lines[i]);
+                if(!((curModel.oData.lines.indexOf(oData.lines[i]) > -1))){
+                    curModel.oData.lines.push(oData.lines[i]);
+                }
 		    }
 		    var oModel = new JSONModel(curModel.oData);
 		    oModel['keys'] = curModel.keys;
@@ -306,6 +308,7 @@ sap.ui.define([
 
 		makeGraph: function(oData){
 		    var curModel = this.getView().getModel();
+		    //Iron man is in the demo graph so assume that we need to make the graph based on that
 		    if(curModel.oData.nodes[0].title == "Iron Man"){
 		        var oModel = new JSONModel(oData);
 		        this.getView().setModel(oModel);

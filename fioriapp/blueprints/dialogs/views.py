@@ -7,10 +7,8 @@ import random, os, time
 dialogs = Blueprint('dialogs', __name__)
 
 Q = Queries()
-t = Thread(target=Q.ex.odb.fill_index(limit=5000))
-t.start()
-UPLOAD_FOLDER = os.path.join(Q.ex.dp.data, 'upload')
-ALLOWED_EXTENSIONS = ['csv', 'txt', 'xls', 'xlsx']
+UPLOAD_FOLDER = Q.ex.dp.upload
+ALLOWED_EXTENSIONS = Q.ex.dp.acceptable_files
 
 
 def allowed_file(filename):
@@ -72,9 +70,19 @@ def get_random_lon():
     return random.randint(lon_min, lon_max)/10000
 
 
+def merge_graphs(graph1, graph2):
+
+    graph_h = ['nodes', 'lines', 'keys']
+    for h in graph_h:
+        for b in graph2[h]:
+            if b not in graph1[h]:
+                graph1[h].append(b)
+    return graph1
+
+
 def layout_graph(data):
     """
-    1) Prepare the data for the graph as a JSON based on data received from the Queries model class in the form:
+    1) Prepare the data list for the graph as a JSON based on data received from the Queries model class in the form:
         'a_content': response['d'][0].oRecordData['a_content'],
         'a_pid': response['d'][0].oRecordData['a_pid'],
         'a_tags': response['d'][0].oRecordData['a_tags'],
@@ -97,8 +105,9 @@ def layout_graph(data):
     }
 
     for r in data:
+        nodes = Q.ex.odb.get_node(cont_id=r)
         if r not in graph['keys']:
-            nodes = Q.ex.odb.get_node(cont_id=r)
+
             graph['keys'].append(r)
             graph['nodes'].append({
                 'key': nodes['a_pid'],
@@ -125,70 +134,71 @@ def layout_graph(data):
             })
             graph['report']['total_nodes'] += 1
             graph['report']['tot_str_len'] += len(nodes['a_content'])
-            for rel in nodes['v_in']:
-                graph['lines'].append({
-                    'from': rel['pid'],
-                    'to': nodes['a_pid']
-                })
-                if rel['cont_id'] not in graph['keys']:
-                    graph['report']['total_nodes'] += 1
-                    graph['nodes'].append({
-                        'key': rel['pid'],
-                        'title': str(rel['content'])[:10],
-                        'icon': "sap-icon://message-popup",
-                        'attributes': [
-                            {"label": "Content",
-                             "value": rel['content']},
-                            {"label": "ID",
-                             "value": rel['pid']},
-                            {"label": "Key",
-                             "value": rel['cont_id']},
-                            {"label": "Tags",
-                             "value": rel['tags']},
-                            {"label": "Created on",
-                             "value": rel['create_date']},
-                            {"label": "Length",
-                             "value": len(rel['content'])},
-                            {"label": "Geo_lat",
-                             "value": get_random_lat()},
-                            {"label": "Geo_lon",
-                             "value":  get_random_lon()}
-                        ]
-                    })
-                graph['keys'].append(rel['cont_id'])
-                graph['report']['tot_str_len'] += len(rel['content'])
-            for rel in nodes['v_out']:
-                graph['lines'].append({
-                    'from': nodes['a_pid'],
-                    'to': rel['pid']
-                })
+
+        for rel in nodes['v_in']:
+            graph['lines'].append({
+                'from': rel['pid'],
+                'to': nodes['a_pid']
+            })
+            if rel['cont_id'] not in graph['keys']:
                 graph['report']['total_nodes'] += 1
-                if rel['cont_id'] not in graph['keys']:
-                    graph['nodes'].append({
-                        'key': rel['pid'],
-                        'title': str(rel['content'])[:10],
-                        'icon': "sap-icon://message-popup",
-                        'attributes': [
-                            {"label": "Content",
-                             "value": rel['content']},
-                            {"label": "ID",
-                             "value": rel['pid']},
-                            {"label": "Key",
-                             "value": rel['cont_id']},
-                            {"label": "Tags",
-                             "value": rel['tags']},
-                            {"label": "Created on",
-                             "value": rel['create_date']},
-                            {"label": "Length",
-                             "value": len(rel['content'])},
-                            {"label": "Geo_lat",
-                             "value": get_random_lat()},
-                            {"label": "Geo_lon",
-                             "value":  get_random_lon()}
-                        ]
-                    })
-                graph['keys'].append(rel['cont_id'])
-                graph['report']['tot_str_len'] += len(rel['content'])
+                graph['nodes'].append({
+                    'key': rel['pid'],
+                    'title': str(rel['content'])[:10],
+                    'icon': "sap-icon://message-popup",
+                    'attributes': [
+                        {"label": "Content",
+                         "value": rel['content']},
+                        {"label": "ID",
+                         "value": rel['pid']},
+                        {"label": "Key",
+                         "value": rel['cont_id']},
+                        {"label": "Tags",
+                         "value": rel['tags']},
+                        {"label": "Created on",
+                         "value": rel['create_date']},
+                        {"label": "Length",
+                         "value": len(rel['content'])},
+                        {"label": "Geo_lat",
+                         "value": get_random_lat()},
+                        {"label": "Geo_lon",
+                         "value":  get_random_lon()}
+                    ]
+                })
+            graph['keys'].append(rel['cont_id'])
+            graph['report']['tot_str_len'] += len(rel['content'])
+        for rel in nodes['v_out']:
+            graph['lines'].append({
+                'from': nodes['a_pid'],
+                'to': rel['pid']
+            })
+            graph['report']['total_nodes'] += 1
+            if rel['cont_id'] not in graph['keys']:
+                graph['nodes'].append({
+                    'key': rel['pid'],
+                    'title': str(rel['content'])[:10],
+                    'icon': "sap-icon://message-popup",
+                    'attributes': [
+                        {"label": "Content",
+                         "value": rel['content']},
+                        {"label": "ID",
+                         "value": rel['pid']},
+                        {"label": "Key",
+                         "value": rel['cont_id']},
+                        {"label": "Tags",
+                         "value": rel['tags']},
+                        {"label": "Created on",
+                         "value": rel['create_date']},
+                        {"label": "Length",
+                         "value": len(rel['content'])},
+                        {"label": "Geo_lat",
+                         "value": get_random_lat()},
+                        {"label": "Geo_lon",
+                         "value":  get_random_lon()}
+                    ]
+                })
+            graph['keys'].append(rel['cont_id'])
+            graph['report']['tot_str_len'] += len(rel['content'])
 
     graph['report']['avg_str_len'] = graph['report']['tot_str_len'] / graph['report']['total_nodes']
 
@@ -266,7 +276,11 @@ def get_response():
             phrase=r['phrase'],
             rel_text=r['rel_text'],
             rtype=r['rtype'])
-        response['graph'] = layout_graph(response['data']['cont_id'])
+        if response['data']['resp_id']:
+            response['graph'] = layout_graph([response['data']['cont_id'],
+                                              response['data']['resp_id']])
+        else:
+            response['graph'] = layout_graph([response['data']['cont_id']])
 
     else:
         response = method_not_allowed()
