@@ -42,7 +42,7 @@ class OrientModel():
         2) Cycle through potential addresses and try connecting to each, breaking when one works
         """
         time.sleep(10)
-       #Line improved by Remi Astier to get away from hard coded values
+        # Line improved by Remi Astier to get away from hard coded values
         possible_hosts = socket.gethostbyname_ex(socket.gethostname())[-1]
         if len(possible_hosts) > 0:
             hostname = possible_hosts[0][:possible_hosts[0].rfind('.')]
@@ -50,13 +50,13 @@ class OrientModel():
             possible_hosts = []
             while i < 6:
                 possible_hosts.append("%s.%d" % (hostname, i))
-                i+=1
+                i += 1
         possible_hosts.append("localhost")
         self.user = "root"
         self.pswd = "root"
         self.stderr = False
         self.db_name = "Dialogs"
-        click.echo('[OrientModel_init__%s] Checking hosts: %s' % (get_datetime(), possible_hosts))
+
         for h in possible_hosts:
             self.client = pyorient.OrientDB("%s" % h, 2424)
             try:
@@ -624,11 +624,11 @@ class Extractor():
         return line
 
     def set_demo_data(self):
-        '''
+
         click.echo('[Extractor_set_demo_data_%s] Inserting demo data...' % (get_datetime()))
         dt = Thread(target=self.extract(file_path=os.path.join(self.dp.data, 'demo.csv')))
         dt.start()
-        '''
+        click.echo('[Extractor_set_demo_data_%s] Thread started in background' % (get_datetime()))
         return True
 
     def ex_segs_from_lines(self, data, line, row):
