@@ -42,8 +42,14 @@ class OrientModel():
         2) Cycle through potential addresses and try connecting to each, breaking when one works
         """
         time.sleep(10)
-        possible_hosts = ["localhost"]
-        possible_hosts = possible_hosts + socket.gethostbyname_ex(socket.gethostname())[-1]
+        possible_hosts = socket.gethostbyname_ex(socket.gethostname())[-1]
+        if len(possible_hosts) > 0:
+            hostname = possible_hosts[0][:possible_hosts[0].rfind('.')]
+            i = 1
+            while i < 10:
+                possible_hosts.append("%s.%d" % (hostname, i))
+                i+=1
+        possible_hosts.append("localhost")
         self.user = "root"
         self.pswd = "root"
         self.stderr = False
