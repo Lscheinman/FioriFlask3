@@ -17,4 +17,5 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD gunicorn -b 0.0.0.0:8000 --access-logfile - "fioriapp.app:create_app()"
+RUN sleep 60
+CMD gunicorn -b 0.0.0.0:8000 --access-logfile --workers=4 --timeout=120 - "fioriapp.app:create_app()"
