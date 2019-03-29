@@ -16,7 +16,7 @@ from fioriapp.extensions import (
 from fioriapp.blueprints.home import home
 from fioriapp.blueprints.dashboard import dashboard
 from fioriapp.blueprints.dialogs import dialogs #NEW Step1
-
+from fioriapp.blueprints.dialogs.models import get_datetime
 CELERY_TASK_LIST = [
     'fioriapp.blueprints.contact.tasks',
     'fioriapp.blueprints.user.tasks',
@@ -74,7 +74,8 @@ def create_app(settings_override=None):
     app.register_blueprint(home)
     app.register_blueprint(dashboard)
     app.register_blueprint(dialogs) #NEW Step 2
-
+    click.echo('[app_%s] All blueprints registered' % (get_datetime()))
+    middleware(app)
     middleware(app)
     #error_templates(app)
     #exception_handler(app)
