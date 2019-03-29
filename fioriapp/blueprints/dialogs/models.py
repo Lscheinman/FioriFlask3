@@ -45,8 +45,9 @@ class OrientModel():
         possible_hosts = socket.gethostbyname_ex(socket.gethostname())[-1]
         if len(possible_hosts) > 0:
             hostname = possible_hosts[0][:possible_hosts[0].rfind('.')]
-            i = 1
-            while i < 10:
+            i = 2
+            possible_hosts = []
+            while i < 6:
                 possible_hosts.append("%s.%d" % (hostname, i))
                 i+=1
         possible_hosts.append("localhost")
