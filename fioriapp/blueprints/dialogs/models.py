@@ -622,9 +622,11 @@ class Extractor():
         return line
 
     def set_demo_data(self):
+        '''
         click.echo('[Extractor_set_demo_data_%s] Inserting demo data...' % (get_datetime()))
         dt = Thread(target=self.extract(file_path=os.path.join(self.dp.data, 'demo.csv')))
         dt.start()
+        '''
         return True
 
     def ex_segs_from_lines(self, data, line, row):
