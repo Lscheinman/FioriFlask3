@@ -42,12 +42,13 @@ class OrientModel():
         2) Cycle through potential addresses and try connecting to each, breaking when one works
         """
         time.sleep(10)
-        possible_hosts= socket.gethostbyname_ex(socket.gethostname())[-1]
+        possible_hosts = ["localhost"]
+        possible_hosts = possible_hosts + socket.gethostbyname_ex(socket.gethostname())[-1]
         self.user = "root"
         self.pswd = "root"
         self.stderr = False
         self.db_name = "Dialogs"
-
+        click.echo('[OrientModel_init__%s] Checking hosts: %s' % (get_datetime(), possible_hosts))
         for h in possible_hosts:
             self.client = pyorient.OrientDB("%s" % h, 2424)
             try:
