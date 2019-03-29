@@ -42,6 +42,7 @@ class OrientModel():
         2) Cycle through potential addresses and try connecting to each, breaking when one works
         """
         time.sleep(10)
+       #Line improved by Remi Astier to get away from hard coded values
         possible_hosts = socket.gethostbyname_ex(socket.gethostname())[-1]
         if len(possible_hosts) > 0:
             hostname = possible_hosts[0][:possible_hosts[0].rfind('.')]
