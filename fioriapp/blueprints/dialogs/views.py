@@ -3,13 +3,14 @@ from threading import Thread
 from .models import Queries, get_datetime
 from werkzeug.utils import secure_filename
 import random, os, time
+import click
 
 dialogs = Blueprint('dialogs', __name__)
 
 Q = Queries()
 UPLOAD_FOLDER = Q.ex.dp.upload
 ALLOWED_EXTENSIONS = Q.ex.dp.acceptable_files
-
+click.echo('[views_%s] Query model set' % (get_datetime()))
 
 def allowed_file(filename):
     return '.' in filename and \
