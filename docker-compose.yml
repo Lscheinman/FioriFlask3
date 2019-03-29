@@ -39,14 +39,6 @@ services:
     volumes:
       - '/var/orientdb/databases:/opt/orientdb/databases'
 
-  celery:
-    build: .
-    command: celery worker -l info -A fioriapp.blueprints.contact.tasks
-    env_file:
-      - '.env'
-    volumes:
-      - '.:/fioriapp'
-
 
 volumes:
   postgres:
