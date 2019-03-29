@@ -3,6 +3,7 @@ import os, time, string
 import pandas as pd
 import json
 import click
+import socket
 from threading import Thread
 from datetime import datetime
 from difflib import SequenceMatcher
